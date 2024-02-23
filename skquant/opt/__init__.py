@@ -42,7 +42,7 @@ def minimize(func, x0, bounds, budget=10000, method='imfil', options=None, **opt
         import SQImFil._optset as _optset   # ImFil standalone has a different API
         _optset.STANDALONE = False
     elif 'snobfit' in method_ :
-        import SQSnobFit as optimizer
+        import skquant.opt._snobfit as optimizer
     elif 'nomad' in method_ :
         import SQNomad as optimizer
     elif 'bobyqa' in method_:
