@@ -228,6 +228,9 @@ def minimize(f, x0, bounds, budget, optin={}, **optkwds):
   # repeated calls to Snobfit
     while ncall0 < budget:   # repeat till ncall function values are reached
                              # (if the stopping criterion is not fulfilled first)
+        # Without this modificiation, it will crash
+        vals = vals+(numpy.random.random(vals.shape)-0.5) / 10**12
+        x = x+(numpy.random.random(x.shape)-0.5) / 10**12
         request, xbest, fbest = snobfit(x, vals, config)
         if options.verbose:
             print('request =', request)
