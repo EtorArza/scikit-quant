@@ -259,26 +259,36 @@ def snobupdt(xl, xu, x, f, nsplit, small, near, d, np, t, xnew, fnew, fnan, u, v
 def snobnewb(xnew, xl, xu, small, u, v, u1, v1):
     nx = len(xl)
     n = nx and xl.shape[1] or 0
-    uold = u
-    vold = v
+
+    assert u1.shape[0] == 1, "u1.shape was" + str(u1.shape)
+
+    og_shape = u.shape
+
+    uold = u.flatten()
+    vold = v.flatten()
     u = numpy.concatenate((xnew, u)).min(0)
     v = numpy.concatenate((xnew, v)).max(0)
-    u = numpy.min(u, u1)
-    v = numpy.max(v, v1)
-    i1 = find(u < uold)
-    i2 = find(v > vold)
-    ind = numpy.array([])
+    
+    u = numpy.minimum(u, u1).flatten()
+    v = numpy.maximum(v, v1).flatten()
+
+
+    i1 = find(u < uold).flatten()
+    i2 = find(v > vold).flatten()
+
+
+    ind = numpy.array([], dtype=int)
     for j in range(len(i1)):
-        j1 = find(xl[:,i1[j]] == uold[i1[j]])
+        j1 = find(xl[:,i1[j]] == uold[i1[j]]).flatten()
         ind = numpy.concatenate((ind, j1))
         xl[j1,i1[j]] = u[i1[j]]
 
     for j in range(len(i2)):
-        j2 = find(xu[:, i2[j]] == vold[i2[j]])
+        j2 = find(xu[:, i2[j]] == vold[i2[j]]).flatten()
         ind = numpy.concatenate((ind, j2))
         xu[j2,i2[j]] = v[i2[j]]
 
     if len(i1) + len(i2):    # at least one of the bounds was changed
         small = -numpy.sum(numpy.round(numpy.log2((xu-xl)/(numpy.ones((nx,1))*(v-u)))), axis=1)
 
-    return xl, xu, small, u, v
+    return xl, xu, small, u.reshape(og_shape), v.reshape(og_shape)
