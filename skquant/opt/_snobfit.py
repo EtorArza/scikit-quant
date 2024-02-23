@@ -18,5 +18,5 @@ Software available at github.com/numericalalgorithmsgroup/pybobyqa/
 __all__ = ['minimize', 'log']
 
 
-def minimize(func, x0, bounds, budget, optin, **optkwds):
-    return opt.snobfit.python.SQSnobFit.minimize(func, x0, bounds, budget, optin, **optkwds) 
+def minimize(x_queue, f_queue, func, x0, bounds, budget, optin, **optkwds):
+    return opt.snobfit.python.SQSnobFit.minimize(x_queue, f_queue, func, x0, bounds, budget, optin, **optkwds) 

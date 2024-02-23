@@ -161,7 +161,7 @@ def fill_request(request, func, nparams):
 
 
 #-----
-def minimize(f, x0, bounds, budget, optin={}, **optkwds):
+def minimize(x_queue, f_queue, f, x0, bounds, budget, optin={}, **optkwds):
   # The user-facing API is the equivalent of snobdriver, providing the loop
   # over the "internal" snobfit function.
     if budget <= 0:
@@ -172,6 +172,21 @@ def minimize(f, x0, bounds, budget, optin={}, **optkwds):
 
     if type(bounds) != numpy.ndarray:
         bounds = numpy.array(bounds)
+
+
+    # Wrap the original call function.
+    og_call = ObjectiveFunction.__call__
+    def newcall(self, par):
+        print("call modified")
+        print("x_queue.put(par) par in _snobfit.py")
+        x_queue.put(par)
+        print("waiting for f_queue.get() par in _snobfit.py")
+        f_res = f_queue.get(timeout=30000.0)
+        self.objective = lambda x: f_res
+        return og_call(self, par)
+
+    ObjectiveFunction.__call__ = newcall
+
 
     objfunc = ObjectiveFunction(f, options={'simple_function' : True})
 
