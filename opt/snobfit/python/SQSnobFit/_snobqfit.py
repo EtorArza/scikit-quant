@@ -59,10 +59,22 @@ import numpy
 
 
 def snobqfit(j, x, f, near, dx, u, v):
+    # print("---snobqfit---")
+    # print("j", j, type(j))
+    # print("x", x.shape)
+    # print("f", f.shape)
+    # print("near", near.shape)
+    # print("dx", dx.shape)
+    # print("u", u.shape)
+    # print("v", v.shape)
+    # print("---end---")
+
+    
+
     n = x.shape[1]	# dimension of the problem
     K = min(len(x)-1, n*(n+3))
     nneigh = near.shape[1]
-    x0 = x[j]
+    x0 = x[j].flatten()
     f0 = f[j]
     distance = numpy.sum((x - numpy.outer(numpy.ones(len(x)), x0))**2, 1)
     dd, ind = sort(distance)
@@ -80,7 +92,7 @@ def snobqfit(j, x, f, near, dx, u, v):
                         0.5*(x[ind,:] - numpy.outer(numpy.ones(K), x0))**2), 1)
 
     for i in range(n-1):
-        B = (x[ind,i]-x0[i]).reshape(nind,1).dot(numpy.ones((1,n-i-1)))
+        B = (x[ind,i]-x0.flatten()[i]).reshape(nind,1).dot(numpy.ones((1,n-i-1)))
         A = numpy.concatenate((A, B*(x[ind, i+1:n]-(numpy.ones((K, 1)).dot(x0[i+1:n][None,:])))), axis=1)
 
     A = A/(sc.reshape(nind,1).dot(numpy.ones((1, A.shape[1]))))
@@ -99,7 +111,8 @@ def snobqfit(j, x, f, near, dx, u, v):
 
     g = y[:n]
     c = g - G.dot(x0.T).reshape(u.shape)
-    dp = d.reshape(u.shape); x0p = x0.reshape(u.shape)
+    # dp = d.reshape(u.shape); x0p = x0.reshape(u.shape)
+    dp = d.reshape((-1, u.shape[1])); x0p = x0.reshape((-1, u.shape[1]))
     y, f1, ierr, nsub = minq(f0-x0.dot(g) + 0.5*x0.dot(G.dot(x0.T)), c, G,
             numpy.maximum(x0p.T - dp.T, u.T), numpy.minimum(x0p.T + dp.T, v.T), 0)
     y = snobround(y.T, u, v, dx)

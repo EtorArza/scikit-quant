@@ -61,6 +61,14 @@ logger = logging.getLogger('SKQ.SnobFit.minq')
 def minq(gam, c, G, xu, xo, prt, xx=None):
     prt = 0
 
+    # print("---minq---")
+    # print("gam", gam.shape)
+    # print("c", c.shape)
+    # print("G", G.shape)
+    # print("xu", xu.shape)
+    # print("xo", xo.shape)
+    # print("---end---")
+
     c = c.reshape(xu.shape)
     convex = 0
     n = len(G)

@@ -155,7 +155,7 @@ def fill_request(request, func, nparams):
                 res = res[0]
             f[i] = (res, err)
         except Exception as e:
-            log.Error('Function evaluation failed: %s', str(e))
+            print("Objective function evaluation crashed, setting f=numpy.nan")
             f[i] = numpy.nan
     return x, f
 
@@ -177,11 +177,9 @@ def minimize(x_queue, f_queue, f, x0, bounds, budget, optin={}, **optkwds):
     # Wrap the original call function.
     og_call = ObjectiveFunction.__call__
     def newcall(self, par):
-        print("call modified")
-        print("x_queue.put(par) par in _snobfit.py")
         x_queue.put(par)
-        print("waiting for f_queue.get() par in _snobfit.py")
         f_res = f_queue.get(timeout=30000.0)
+        assert type(f_res)==float or f_res==numpy.nan or type(f_res) == numpy.float64, "f_res = "+str(f_res) + "| type = " + str(type(f_res))
         self.objective = lambda x: f_res
         return og_call(self, par)
 
@@ -236,8 +234,6 @@ def minimize(x_queue, f_queue, f, x0, bounds, budget, optin={}, **optkwds):
         fbest = fbestn
         xbest = x[jbest,:]
 
-  # display current number of function values, best point and function value
-    log.info('# calls = %d; xbest = %s; fbest = %f', ncall0, str(xbest), fbest)
 
     nstop0 = 0;
   # repeated calls to Snobfit
@@ -246,6 +242,10 @@ def minimize(x_queue, f_queue, f, x0, bounds, budget, optin={}, **optkwds):
         # Without this modificiation, it will crash
         vals = vals+(numpy.random.random(vals.shape)-0.5) / 10**12
         x = x+(numpy.random.random(x.shape)-0.5) / 10**12
+        # print("---snobfit---")
+        # print("x", x.shape)
+        # print("vals", vals.shape)
+        # print("---end---")
         request, xbest, fbest = snobfit(x, vals, config)
         if options.verbose:
             print('request =', request)
@@ -260,8 +260,6 @@ def minimize(x_queue, f_queue, f, x0, bounds, budget, optin={}, **optkwds):
             fbest = fbestn
             xbest = x[jbest,:]
 
-          # display current number of function values
-            log.info('# calls = %d; xbest = %s; fbest = %f', ncall0, str(xbest), fbest)
 
             nstop0 = 0
         elif budget >= minfcall:
@@ -437,6 +435,8 @@ def snobfit(x, f, config, dx = None):
     else:
         fbes, jbes = min_(f[ind,0])
         jbes = ind[jbes]
+        assert jbes.shape==(1,)
+        jbes = jbes[0]
         xbes = x[jbes]
         z, f1 = snobqfit(jbes, x, f[:,0], near, dx, u1, v1)
 
