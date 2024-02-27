@@ -84,5 +84,5 @@ setup(
     keywords='quantum computing optimizers',
 
     package_dir={'': '.'},
-    packages=find_packages('.', include=['skquant', 'skquant.opt', 'skquant.interop', 'opt', 'opt.snobfit.python.SQSnobFit']),
+    packages=find_packages('.'),
 )
