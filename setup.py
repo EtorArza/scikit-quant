@@ -9,7 +9,6 @@ requirements = []
 # optimizers sub-package requirements
 requirements.append('SQCommon==0.3.2')
 requirements.append('SQImFil==0.3.7')
-requirements.append('SQSnobFit==0.4.5')
 
 # NOMAD is slow to build, so only add if requested
 extras_require = {
@@ -85,5 +84,5 @@ setup(
     keywords='quantum computing optimizers',
 
     package_dir={'': '.'},
-    packages=find_packages('.', include=['skquant', 'skquant.opt', 'skquant.interop']),
+    packages=find_packages('.', include=['skquant', 'skquant.opt', 'skquant.interop', 'opt.snobfit.python.SQSnobFit']),
 )
